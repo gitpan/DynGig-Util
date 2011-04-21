@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                DynGig-Util
-version:             0.01
+version:             0.02
 abstract:            A collection of Utility modules
 license:             perl
 author:              

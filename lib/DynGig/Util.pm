@@ -7,10 +7,10 @@ package DynGig::Util;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 MODULES
 
@@ -45,6 +45,10 @@ sysread/syswrite wrappers reliable on EAGAIN
 =head2 DynGig::Util::TCPServer
 
 A generic multithreaded TCP Server interface.
+
+=head2 DynGig::Util::CLI::OpsDB
+
+CLI for a simple operations database
 
 =head1 AUTHOR
 

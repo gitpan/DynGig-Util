@@ -3,6 +3,7 @@ MANIFEST
 Makefile.PL
 README
 lib/DynGig/Util/CLI.pm
+lib/DynGig/Util/CLI/OpsDB.pm
 lib/DynGig/Util/EZDB.pm
 lib/DynGig/Util/LockFile/PID.pm
 lib/DynGig/Util/LockFile/Time.pm
