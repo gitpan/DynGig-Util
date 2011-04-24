@@ -7,10 +7,10 @@ package DynGig::Util;
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 MODULES
 
@@ -42,9 +42,17 @@ Thread-safe logging
 
 sysread/syswrite wrappers reliable on EAGAIN
 
+=head2 DynGig::Util::Time
+
+Interpret time expressions
+
 =head2 DynGig::Util::TCPServer
 
 A generic multithreaded TCP Server interface.
+
+=head2 DynGig::Util::MapReduce 
+
+A Map Reduce Job Launcher
 
 =head2 DynGig::Util::CLI::OpsDB
 

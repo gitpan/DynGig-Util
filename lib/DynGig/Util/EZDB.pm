@@ -87,6 +87,8 @@ sub new
     return $this;
 }
 
+=head1 METHODS
+
 =head2 set( table, @key, @value )
 
 INSERT or UPDATE keys and values into table. Returns status of operation.
