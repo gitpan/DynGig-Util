@@ -129,6 +129,17 @@ sub delete
         if defined $param{$_} } qw( key val );
 }
 
+=head2 drop( table )
+
+drop a table from the database
+
+=cut
+sub drop
+{
+    my ( $this, $table ) = @_;
+    my $result = $this->_execute( $table, 'drop' );
+}
+
 =head2 truncate( table )
 
 Deletes all records from a table.
@@ -188,6 +199,7 @@ sub _statement
 
     my %op =
     (
+        drop => 'DROP TABLE %s',
         truncate => 'DELETE FROM %s',
         select_all => 'SELECT * FROM %s',
         insert => "INSERT OR REPLACE INTO %s ($key) VALUES ($val)",

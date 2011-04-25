@@ -86,7 +86,7 @@ Map/Reduce is an approach that collects data in parallel then processes data in
 serial. A Map/Reduce job has 4 components/steps. Each component is to be
 defined by the user.
 
- Batch : devide the targets into batches.
+ Batch : divide the targets into batches.
  Map   : create threads to collect data from/for each batch in parallel.
  Sort  : aggregate collected data by status.
  Reduce: (optional) process aggregated data serially.

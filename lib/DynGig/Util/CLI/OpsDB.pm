@@ -11,10 +11,12 @@ use Carp;
 
 use Socket;
 use YAML::XS;
+use File::Spec;
 use IO::Select;
 use Pod::Usage;
-use Getopt::Long;
+use Digest::MD5;
 use Sys::Hostname;
+use Getopt::Long qw( :config no_ignore_case );
 
 use DynGig::Util::CLI;
 use DynGig::Util::EZDB;
@@ -30,7 +32,7 @@ $| ++;
  DynGig::Util::CLI::OpsDB->main
  (
      master => 'hostname',
-     database => '/database/path',
+     database => '/database/directory/path',
  );
 
 =head1 SYNOPSIS
@@ -38,6 +40,8 @@ $| ++;
 $exe B<--help>
 
 $exe B<--range> range [B<--delete>] [B<--format> format]
+
+$exe B<--Regex> range [B<--delete>] [B<--format> format]
 
 [echo YAML |] $exe YAML [B<--delete>] [B<--format> format]
 
@@ -49,9 +53,13 @@ To read help menu
 
  $exe --help
 
-To display record of host001 to host004, in CSV form by name,colo,rack
+To display records of host001 to host004, in CSV form by name,colo,rack
 
  $exe -r host001~4 -f '"%s,%s,%s",name,colo,rack'
+
+To display records that match /host00?/, in raw YAML form
+
+ $exe -R 'host00?'
 
 To display the records of hosts in area A, cab 6, in raw YAML form
 
@@ -79,6 +87,7 @@ sub main
         'u|update','update database',
         'd|delete','delete from database',
         'r|range=s','range of nodes',
+        'R|Regex=s','pattern of nodes',
         'f|format=s','display format',
     );
 
@@ -123,29 +132,40 @@ sub main
 
     @ARGV = ( $buffer ) if $length;
 
-    Pod::Usage::pod2usage( %pod_param ) unless @ARGV || $option{r};
+    Pod::Usage::pod2usage( %pod_param )
+        unless @ARGV || $option{r} || $option{R};
 
     my @input = YAML::XS::Load $ARGV[0] if @ARGV;
     my $error = "Invalid input. Operations aborted.\n";
 
     map { croak $error if ref $_ ne 'HASH' } @input;
 
-    if ( $option{u} ) ## update
+    if ( $option{u} )                ## update
     {
-        my %table;
+        my %shard;
 
         for my $input ( @input )
         {
             while ( my ( $table, $input ) = each %$input )
             {
                 croak $error if ref $input ne 'HASH';
+
                 map { croak $error if ref $_ } values %$input;
-                $table{$table} = 1;
+
+                my $shard = $shard{table}{$table} = $class->_md5( $table );
+
+                push @{ $shard{db}{$shard} }, $table;
             }
         }
 
-        my $db = DynGig::Util::EZDB
-            ->new( $option{database}, table => [ keys %table ] );
+        my %db = map
+        {
+            $_ => DynGig::Util::EZDB->new
+            (
+                File::Spec->join( $option{database}, $_ ),
+                table => $shard{db}{$_}
+            )
+        } keys %{ $shard{db} };
 
         for my $input ( @input )
         {
@@ -153,7 +173,7 @@ sub main
             {
                 while ( my ( $key, $val ) = each %$input )
                 {
-                    $db->set( $table, $key, $val );
+                    $db{ $shard{table}{$table} }->set( $table, $key, $val );
                 }
             }
         }
@@ -161,51 +181,67 @@ sub main
         return 0;
     }
 
-    my $db = DynGig::Util::EZDB->new( $option{database} );
-    my @table = $db->table();
-    my %record;
+    my %range = map { $_ => 1 }
+        DynGig::Range::String->new( $option{r} )->list() if $option{r};
 
-    if ( $option{r} ) ## by range
+    my @hex = ( 0 .. 9, qw( A B C D E ) );
+
+    for my $shard ( map { my $hex = $_; map { $_ . $hex } @hex } @hex )
     {
-        my $range = DynGig::Range::String->new( $option{r} );
-        my $table = DynGig::Range::String->new( @table );
+        my $database = File::Spec->join( $option{database}, $shard );
+        my $db = DynGig::Util::EZDB->new( $database );
+        my @table = $db->table();
+        my %record;
 
-        $range &= $table;
-
-        map { $record{$_} = $db->dump( $_ ) } $range->list();
-    }
-    else              ## by query
-    {
-        for my $table ( @table )
+        if ( $option{r} )                ## by range
         {
-            my $record = $db->dump( $table );
-
-            for my $query ( @input ) ## or->and
+            map { $record{$_} = $db->dump( $_ ) if $range{$_} } @table;
+        }
+        elsif ( $option{R} )             ## by regex
+        {
+            map { $record{$_} = $db->dump( $_ ) if $_ =~ /$option{R}/ } @table;
+        }
+        else                             ## by query
+        {
+            for my $table ( @table )
             {
-                map { next unless $record->{$_}
-                    && $record->{$_} eq $query->{$_} } keys %$query;
-
-                $record{$table} = $record;
-                last;
+                my $record = $db->dump( $table );
+        
+                for my $query ( @input ) ## or->and
+                {
+                    map { next unless $record->{$_}
+                        && $record->{$_} eq $query->{$_} } keys %$query;
+    
+                    $record{$table} = $record;
+                    last;
+                }
             }
+        }
+    
+        next unless %record;
+    
+        if ( $option{d} )                ## delete
+        {
+            $class->_dump( \%record );
+    
+            map { $db->drop( $_ ) } keys %record;
+        }
+        else                             ## search
+        {
+            $class->_dump( \%record, $option{f} );
         }
     }
 
-    return 0 unless %record;
-
-    if ( $option{d} ) ## delete
-    {
-        $class->_dump( \%record );
-
-        map { $db->truncate( $_ ) } keys %record;
-        print STDERR "\nThe records above have been deleted.\n";
-    }
-    else              ## search
-    {
-        $class->_dump( \%record, $option{f} );
-    }
+    print STDERR "\nThe records above have been deleted.\n" if $option{d};
 
     return 0;
+}
+
+sub _md5
+{
+    my ( $this, $table ) = @_;
+
+    return uc substr Digest::MD5::md5_hex( $table ), -2;
 }
 
 sub _dump
