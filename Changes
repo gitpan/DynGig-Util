@@ -11,3 +11,6 @@ Revision history for DynGig-Util
 
 0.04    2011-04-25
         DynGig::Util::CLI::OpsDB sharding
+
+0.05    2011-04-26
+        Debut of DynGig::Util::MultiPhase

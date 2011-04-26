@@ -7,10 +7,10 @@ package DynGig::Util;
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 MODULES
 
@@ -53,6 +53,10 @@ A generic multithreaded TCP Server interface.
 =head2 DynGig::Util::MapReduce 
 
 A Map Reduce Job Launcher
+
+=head2 DynGig::Util::MultiPhase
+
+A multi-phase task launcher
 
 =head2 DynGig::Util::CLI::OpsDB
 

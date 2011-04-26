@@ -127,7 +127,7 @@ sub run
         for ( 1 .. $thread )
         {
             my @queue = map { Thread::Queue->new } 0 .. 1;
-            threads::async { &$server( @queue ) };
+            threads::async { &$server( @queue ) }->detach();
             push @work, \@queue;
         }
 
@@ -148,11 +148,11 @@ sub run
                     }
                 }
             }
-        };
+        }->detach();
     }
     else
     {
-        map { threads::async{ &$server() } } 1 .. $thread;
+        map { threads::async{ &$server() }->detach() } 1 .. $thread;
     }
 
     my %conn;

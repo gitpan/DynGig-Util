@@ -9,6 +9,7 @@ lib/DynGig/Util/LockFile/PID.pm
 lib/DynGig/Util/LockFile/Time.pm
 lib/DynGig/Util/Logger.pm
 lib/DynGig/Util/MapReduce.pm
+lib/DynGig/Util/MultiPhase.pm
 lib/DynGig/Util/Setuid.pm
 lib/DynGig/Util/Sysrw.pm
 lib/DynGig/Util/TCPServer.pm
