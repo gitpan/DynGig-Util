@@ -7,10 +7,10 @@ package DynGig::Util;
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 MODULES
 
@@ -61,6 +61,10 @@ A multi-phase task launcher
 =head2 DynGig::Util::CLI::OpsDB
 
 CLI for a simple operations database
+
+=head2 DynGig::Util::CLI::Service
+
+CLI for daemontools service
 
 =head1 AUTHOR
 

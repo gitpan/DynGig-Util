@@ -184,7 +184,7 @@ sub main
     my %range = map { $_ => 1 }
         DynGig::Range::String->new( $option{r} )->list() if $option{r};
 
-    my @hex = ( 0 .. 9, qw( A B C D E ) );
+    my @hex = ( 0 .. 9, qw( A B C D E F ) );
 
     for my $shard ( map { my $hex = $_; map { $_ . $hex } @hex } @hex )
     {

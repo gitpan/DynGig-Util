@@ -4,13 +4,18 @@ Revision history for DynGig-Util
         First version.
 
 0.02    2011-04-21
-        Debut of DynGig::Util::CLI::OpsDB
+        Debut of CLI::OpsDB
 
 0.03    2011-04-23
-        Debut of DynGig::Util::MapReduce
+        Debut of MapReduce
 
 0.04    2011-04-25
-        DynGig::Util::CLI::OpsDB sharding
+        CLI::OpsDB sharding
 
 0.05    2011-04-26
-        Debut of DynGig::Util::MultiPhase
+        Debut of CLI::MultiPhase
+
+0.06    2011-05-06
+        Debut of CLI::Service
+        Bug fix in CLI::OpsDB
+        error() method in CLI::MultiPhase

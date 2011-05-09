@@ -2,6 +2,7 @@ Changes
 MANIFEST
 Makefile.PL
 README
+lib/DynGig/Util/CLI/Service.pm
 lib/DynGig/Util/CLI/OpsDB.pm
 lib/DynGig/Util/CLI.pm
 lib/DynGig/Util/EZDB.pm

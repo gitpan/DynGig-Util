@@ -91,7 +91,7 @@ Launch task.
 sub run
 {
     my ( $this, %param ) = @_;
-    my ( %busy, %retry );
+    my ( %busy, %retry, %error );
     my $retry = $this->{retry};
     my $thread = $this->{thread};
     my %dst = %{ $this->{dst} };
@@ -107,8 +107,17 @@ sub run
 
             if ( $status == ERROR )
             {
-                $dst{$dst} = $busy{$dst} if ( $retry{$dst} ||= 0 ) < $retry;
-                $retry{$dst} ++;
+                $retry{$dst} ||= 0;
+
+                if ( $retry{$dst} < $retry )
+                {
+                    $dst{$dst} = $busy{$dst};
+                    $retry{$dst} ++;
+                }
+                else
+                {
+                    $error{$dst} = $result;
+                }
             }
             else
             {
@@ -144,6 +153,20 @@ sub run
 
         sleep 0.1;
     }
+
+    $this->{error} = %error ? \%error : undef;
+}
+
+=head2 error()
+
+Return errors as a HASH if any or undef
+
+=cut
+sub error
+{
+    my $this = shift @_;
+
+    return $this->{error};
 }
 
 sub _select
