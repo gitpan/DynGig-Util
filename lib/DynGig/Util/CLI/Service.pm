@@ -123,31 +123,21 @@ sub main
 
     $SVC_PATH = $option{'svc-path'} if defined $option{'svc-path'};
 
-## down/kill
-    if ( $option{k} )
+    if ( $option{d} || $option{k} || $option{r} )
     {
-        die "$name: kill failed\n" unless ( ! -l $link || unlink $link )
-            && _svc( '-dx', $path ) && _svc( '-dx', $log );
-    }
-    elsif ( $option{d} )
-    {
-        die "$name: down failed\n" unless _svc( '-d', $link );
-    }
-## restart
-    if ( $option{r} )
-    {
-        $option{u} = 1;
+## down
+	    if ( -l $link )
+	    {
+            unlink $link;
+            _svc( '-dx', $path ) && _svc( '-dx', $log );
+	    }
 
-        if ( -l $link )
-        {
-            die "$name: restart failed\n"
-                unless _svc( '-u', $link ) && _svc( '-t', $link );
-
-            $option{u} = 0;
-        }
+        system 'pkill', $name; 
+## kill
+        system( "rm -rf $path" ) if $option{k};
     }
 ## up
-    _start( $name, $config, $link, $path, $log ) if $option{u};
+    _start( $name, $config, $link, $path, $log ) if $option{u} || $option{r};
 ## status
     system _path( 'svstat' ), $path if $option{s};
 
@@ -206,7 +196,7 @@ sub _run_script
     $path = File::Spec->join( $path, 'run' );
     $handle->unlink_on_destroy( 0 );
 
-    croak "rename $temp $path: $!" unless rename $temp, $path;
+    croak "failed to mv $temp $path" if system 'mv', $temp, $path;
     croak "chmod $path: $!" unless chmod 0544, $path;
 }
 

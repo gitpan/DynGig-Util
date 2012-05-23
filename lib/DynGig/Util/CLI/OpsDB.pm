@@ -39,11 +39,11 @@ $| ++;
 
 $exe B<--help>
 
-$exe B<--range> range [B<--delete>] [B<--format> format]
+$exe B<--range> range [B<--count> | B<--delete>] [B<--format> format]
 
-$exe B<--Regex> range [B<--delete>] [B<--format> format]
+$exe B<--Regex> range [B<--count> | B<--delete>] [B<--format> format]
 
-[echo YAML |] $exe YAML [B<--delete>] [B<--format> format]
+[echo YAML |] $exe YAML [B<--count> | B<--delete>] [B<--format> format]
 
 [echo YAML |] $exe YAML B<--update>
 
@@ -65,6 +65,10 @@ To display the records of hosts in area A, cab 6, in raw YAML form
 
  $exe '{area: A, rack: 6}'
 
+To count the above records
+
+ $exe '{area: A, rack: 6}' -c
+
 To delete the above records
 
  $exe '{area: A, rack: 6}' -d
@@ -85,6 +89,7 @@ sub main
     (
         'h|help',"print help menu",
         'u|update','update database',
+        'c|count','count',
         'd|delete','delete from database',
         'r|range=s','range of nodes',
         'R|Regex=s','pattern of nodes',
@@ -135,7 +140,7 @@ sub main
     Pod::Usage::pod2usage( %pod_param )
         unless @ARGV || $option{r} || $option{R};
 
-    my @input = YAML::XS::Load $ARGV[0] if @ARGV;
+    my @input = map { YAML::XS::Load $_ } @ARGV if @ARGV;
     my $error = "Invalid input. Operations aborted.\n";
 
     map { croak $error if ref $_ ne 'HASH' } @input;
@@ -185,6 +190,7 @@ sub main
         DynGig::Range::String->new( $option{r} )->list() if $option{r};
 
     my @hex = ( 0 .. 9, qw( A B C D E F ) );
+    my $count = 0;
 
     for my $shard ( map { my $hex = $_; map { $_ . $hex } @hex } @hex )
     {
@@ -220,7 +226,11 @@ sub main
     
         next unless %record;
     
-        if ( $option{d} )                ## delete
+        if ( $option{c} )                ## count
+        {
+            $count += keys %record;
+        }
+        elsif ( $option{d} )             ## delete
         {
             $class->_dump( \%record );
     
@@ -232,7 +242,14 @@ sub main
         }
     }
 
-    print STDERR "\nThe records above have been deleted.\n" if $option{d};
+    if ( $option{c} )
+    {
+        print "$count\n";
+    }
+    elsif ( $option{d} )
+    {
+        print STDERR "\nThe records above have been deleted.\n";
+    }
 
     return 0;
 }

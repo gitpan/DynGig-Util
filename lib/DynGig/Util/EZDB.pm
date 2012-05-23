@@ -129,6 +129,17 @@ sub delete
         if defined $param{$_} } qw( key val );
 }
 
+=head2 create( table )
+
+create a table
+
+=cut
+sub create
+{
+    my ( $this, $table ) = @_;
+    my $result = $this->_execute( $table, 'create' );
+}
+
 =head2 drop( table )
 
 drop a table from the database

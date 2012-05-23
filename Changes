@@ -19,3 +19,6 @@ Revision history for DynGig-Util
         Debut of CLI::Service
         Bug fix in CLI::OpsDB
         error() method in CLI::MultiPhase
+
+0.07    2011-05-23
+        Bug fix in CLI::Service
