@@ -9,7 +9,6 @@ use warnings;
 use strict;
 use Carp;
 
-use Socket;
 use YAML::XS;
 use File::Spec;
 use IO::Select;

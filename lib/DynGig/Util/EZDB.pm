@@ -18,7 +18,6 @@ use DBI;
  PRIMARY KEY ( key )
 
 =cut
-our $SQLITE = '/usr/bin/sqlite3';
 our @SCHEMA =
 (
     key   => 'TEXT NOT NULL PRIMARY KEY',
@@ -39,7 +38,7 @@ our @SCHEMA =
 
  my %keyval = $db->dump( 'table2' );
 
- map { $db->delete( $_, key => 'key1', val => 'value2' ) } $db->table();
+ map { $db->delete( $_, key => 'key1', value => 'value2' ) } $db->table();
 
  $db->truncate( 'table2' );
 
@@ -54,36 +53,18 @@ sub new
     my $dbh = DBI->connect( "DBI:SQLite:dbname=$db", '', '', \%config );
 
     croak "open $db: $!" unless open my $fh, '<', $db;
-##  create schema
+##  create tables
     my $table = $param{table};
-    my @table;
     my $this = bless +{ sth => {}, dbh => $dbh, fh => $fh },
         ref $class || $class;
 
-    if ( $table )
-    {
-        $dbh->disconnect;
+    map { $this->create( $_ ) } @$table if $table;
 
-        my $sqlite = $param{sqlite} || $SQLITE;
-        my $handle;
-        my $schema = join "\n", $this->_schema( @table = @$table );    
-        
-        croak $! unless open( $handle, "| $sqlite $db > /dev/null" )
-            && length $schema == ( syswrite( $handle, $schema ) || 0 );
-
-        close $handle;
-
-        $this->{dbh} =
-            DBI->connect( "DBI:SQLite:dbname=$db", '', '', \%config );
-    }
-    else
-    {
-        $table = $dbh->table_info( undef, undef, undef, 'TABLE' )
-            ->fetchall_hashref( 'TABLE_NAME' );
-        @table = keys %$table;
-    }
 ##  prepare statement handle
-    map { $this->_statement( $_ ) } @table;
+    $table = $dbh->table_info( undef, undef, undef, 'TABLE' )
+        ->fetchall_hashref( 'TABLE_NAME' );
+
+    map { $this->_statement( $_ ) unless $this->{Sth}{$_} } keys %$table;
     return $this;
 }
 
@@ -116,17 +97,18 @@ sub dump
     return wantarray ? %result : \%result;
 }
 
-=head2 delete( table, delete_key => key, delete_val => value )
+=head2 delete( table, delete_key => value )
 
-Deletes by key, or by value, or by key or value from a table.
+Deletes by attribute from a table.
 
 =cut
 sub delete
 {
     my ( $this, $table, %param ) = @_;
+    my %schema = @SCHEMA;
 
     map { $this->_execute( $table, 'delete_' . $_, $param{$_} )
-        if defined $param{$_} } qw( key val );
+        if defined $param{$_} } keys %schema;
 }
 
 =head2 create( table )
@@ -137,7 +119,21 @@ create a table
 sub create
 {
     my ( $this, $table ) = @_;
-    my $result = $this->_execute( $table, 'create' );
+    my $neat = DBI::neat( $table );
+    my @schema;
+    my $exist = $this->{dbh}->table_info( undef, undef, undef, 'TABLE' )
+        ->fetchall_hashref( 'TABLE_NAME' );
+
+    for ( my $i = 0; $i < @SCHEMA; )
+    {
+        push @schema, sprintf '%s %s', @SCHEMA[ $i ++, $i ++ ];
+    }
+
+    $this->{dbh}
+        ->prepare( sprintf 'CREATE TABLE %s ( %s )', $neat, join ', ', @schema )
+        ->execute() unless $exist->{$table};
+
+    $this->_statement( $table ) unless $this->{sth}{$table};
 }
 
 =head2 drop( table )
@@ -148,7 +144,12 @@ drop a table from the database
 sub drop
 {
     my ( $this, $table ) = @_;
-    my $result = $this->_execute( $table, 'drop' );
+    my $neat = DBI::neat( $table );
+
+    return 1 unless $this->{sth}{$table};
+
+    delete $this->{sth}{$table};
+    $this->{dbh}->prepare( "DROP TABLE $neat" )->execute();
 }
 
 =head2 truncate( table )
@@ -203,14 +204,12 @@ sub stat
 sub _statement
 {
     my ( $this, $table ) = @_;
-
-    my @attr = $this->_attribute();
+    my @attr = map { $SCHEMA[ $_ << 1 ] } 0 .. @SCHEMA / 2 - 1;
     my $key = join ',', @attr;
     my $val = join ',', map { '?' } @attr; 
 
     my %op =
     (
-        drop => 'DROP TABLE %s',
         truncate => 'DELETE FROM %s',
         select_all => 'SELECT * FROM %s',
         insert => "INSERT OR REPLACE INTO %s ($key) VALUES ($val)",
@@ -242,29 +241,6 @@ sub _execute
     }
 
     return $result, $sth;
-}
-
-sub _attribute
-{
-    my $class = shift @_;
-    my @attr = map { $SCHEMA[ $_ << 1 ] } 0 .. @SCHEMA / 2 - 1;
-
-    return wantarray ? @attr : \@attr;
-}
-
-sub _schema
-{
-    my $class = shift @_;
-    my @schema;
-
-    for ( my $i = 0; $i < @SCHEMA; )
-    {
-        push @schema, sprintf '%s %s', @SCHEMA[ $i ++, $i ++ ];
-    }
-
-    my $schema = join ",\n", map { sprintf '    %s', $_ } @schema;
-
-    map { sprintf "CREATE TABLE %s (\n%s\n);\n", DBI::neat( $_ ), $schema } @_;
 }
 
 =head1 SEE ALSO
