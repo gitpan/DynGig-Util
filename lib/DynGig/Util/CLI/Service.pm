@@ -131,8 +131,6 @@ sub main
             unlink $link;
             _svc( '-dx', $path ) && _svc( '-dx', $log );
 	    }
-
-        system 'pkill', $name; 
 ## kill
         system( "rm -rf $path" ) if $option{k};
     }
@@ -171,7 +169,7 @@ sub _start
     my $user = $config->{user};
     my $main = './main';
 
-    _run_script( $name, "exec 2>&1\n%s %s nice -n %d %s  || sleep %d",
+    _run_script( $name, "exec %s %s nice -n %d %s 2>&1 || sleep %d",
         $setuidgid, map { $config->{$_} } qw( user nice command pause ) );
 
     _run_script( $log,

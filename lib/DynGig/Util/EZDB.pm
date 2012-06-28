@@ -70,6 +70,19 @@ sub new
 
 =head1 METHODS
 
+=head2 schema( @schema )
+
+Set or get schema. In get mode,
+returns ARRAY ref in scalar context, returns ARRAY in list context.
+
+=cut
+sub schema
+{
+    my $class = shift;
+    @SCHEMA = @_ if @_;
+    return wantarray ? @SCHEMA : [ @SCHEMA ];
+}
+
 =head2 set( table, @key, @value )
 
 INSERT or UPDATE keys and values into table. Returns status of operation.
