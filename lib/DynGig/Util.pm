@@ -7,10 +7,10 @@ package DynGig::Util;
 
 =head1 VERSION
 
-Version 0.09
+Version 1.00
 
 =cut
-our $VERSION = '0.09';
+our $VERSION = '1.00';
 
 =head1 MODULES
 
@@ -57,14 +57,6 @@ A Map Reduce Job Launcher
 =head2 DynGig::Util::MultiPhase
 
 A multi-phase task launcher
-
-=head2 DynGig::Util::CLI::OpsDB
-
-CLI for a simple operations database
-
-=head2 DynGig::Util::CLI::Service
-
-CLI for daemontools service
 
 =head1 AUTHOR
 
