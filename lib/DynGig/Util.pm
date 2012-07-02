@@ -7,10 +7,10 @@ package DynGig::Util;
 
 =head1 VERSION
 
-Version 1.00
+Version 1.01
 
 =cut
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 MODULES
 
@@ -45,6 +45,10 @@ sysread/syswrite wrappers reliable on EAGAIN
 =head2 DynGig::Util::Time
 
 Interpret time expressions
+
+=head2 DynGig::Util::Calendar
+
+Print calendar
 
 =head2 DynGig::Util::TCPServer
 

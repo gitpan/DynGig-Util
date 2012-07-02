@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               DynGig-Util
-version:            1.00
+version:            1.01
 abstract:           A collection of Utility modules
 author:
     - Kan Liu <kan@cpan.org>
@@ -11,23 +11,25 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    Carp:               0
-    Cwd:                0
-    DBI:                0
-    Errno:              0
-    Fcntl:              0
-    File::Copy:         0
-    File::Spec:         0
-    File::Temp:         0
-    IO::Select:         0
-    POSIX:              0
-    Socket:             0
-    Test::More:         0
-    Thread::Queue:      2.12
-    Thread::Semaphore:  2.12
-    threads:            1.86
-    Time::HiRes:        0
-    YAML::XS:           0.38
+    Carp:                 0
+    Cwd:                  0
+    DateTime:             0
+    DBI:                  0
+    DynGig::Range::Time:  0
+    Errno:                0
+    Fcntl:                0
+    File::Copy:           0
+    File::Spec:           0
+    File::Temp:           0
+    IO::Select:           0
+    POSIX:                0
+    Socket:               0
+    Test::More:           0
+    Thread::Queue:        2.12
+    Thread::Semaphore:    2.12
+    threads:              1.86
+    Time::HiRes:          0
+    YAML::XS:             0.38
 no_index:
     directory:
         - t

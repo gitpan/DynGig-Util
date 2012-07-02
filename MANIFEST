@@ -2,6 +2,7 @@ Changes
 MANIFEST
 Makefile.PL
 README
+lib/DynGig/Util/Calendar.pm
 lib/DynGig/Util/CLI.pm
 lib/DynGig/Util/EZDB.pm
 lib/DynGig/Util/LockFile/PID.pm

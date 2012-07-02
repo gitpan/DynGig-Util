@@ -14,7 +14,9 @@ WriteMakefile(
     PREREQ_PM => {
         'Carp' => 0,
         'Cwd' => 0,
+        'DateTime' => 0,
         'DBI' => 0,
+        'DynGig::Range::Time' => 0,
         'Errno' => 0,
         'Fcntl' => 0,
         'File::Copy' => 0,
