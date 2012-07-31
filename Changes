@@ -1,5 +1,9 @@
 Revision history for DynGig-Util
 
+1.02    2012-07-30
+	new module Symlink.pm
+	bug fix in MultiPhase.pm
+
 1.01    2012-07-02
 	new module Calendar.pm
 	new methods in Time.pm

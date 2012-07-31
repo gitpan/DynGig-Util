@@ -99,7 +99,7 @@ sub run
     my $queue = Thread::Queue->new();
     my $handle = $param{log} || *STDERR;
 
-    while ( %dst || threads->list() )
+    while ( %dst || threads->list() || $queue->pending() )
     {
         while ( $queue->pending() )
         {
@@ -151,7 +151,7 @@ sub run
             }->detach();
         }
 
-        sleep 0.1;
+        sleep 1;
     }
 
     $this->{error} = %error ? \%error : undef;

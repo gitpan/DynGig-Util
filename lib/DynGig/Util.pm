@@ -7,10 +7,10 @@ package DynGig::Util;
 
 =head1 VERSION
 
-Version 1.01
+Version 1.02
 
 =cut
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 =head1 MODULES
 
@@ -61,6 +61,10 @@ A Map Reduce Job Launcher
 =head2 DynGig::Util::MultiPhase
 
 A multi-phase task launcher
+
+=head2 DynGig::Util::Symlink
+
+manipulate symbolic links
 
 =head1 AUTHOR
 
