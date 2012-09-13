@@ -91,7 +91,7 @@ Launch task.
 sub run
 {
     my ( $this, %param ) = @_;
-    my ( %busy, %retry, %error );
+    my ( %busy, %retry, %error, %thread );
     my $retry = $this->{retry};
     my $thread = $this->{thread};
     my %dst = %{ $this->{dst} };
@@ -129,6 +129,8 @@ sub run
             delete $busy{$src};
             delete $busy{$dst};
 
+            $thread{$src}{$dst}->join();
+
             print $handle "$src => $dst $result";
         }
 
@@ -144,11 +146,12 @@ sub run
             delete $src{$src};
             delete $dst{$dst};
 
-            threads::async
+            $thread{$src}{$dst} = threads::async
             { 
                 my ( $status, $result ) = $this->_eval( $src, $dst );
                 $queue->enqueue( $status, $src, $dst, $result );
-            }->detach();
+            };
+
         }
 
         sleep 1;

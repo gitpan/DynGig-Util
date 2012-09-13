@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               DynGig-Util
-version:            1.02
+version:            1.03
 abstract:           A collection of Utility modules
 author:
     - Kan Liu <kan@cpan.org>
