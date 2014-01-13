@@ -1,5 +1,8 @@
 Revision history for DynGig-Util
 
+1.04    2012-09-13
+	add reload function to EZDB.pm
+
 1.03    2012-09-13
 	bug fix in MultiPhase.pm
 

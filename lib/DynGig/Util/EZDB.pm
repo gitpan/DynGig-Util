@@ -64,7 +64,7 @@ sub new
     $table = $dbh->table_info( undef, undef, undef, 'TABLE' )
         ->fetchall_hashref( 'TABLE_NAME' );
 
-    map { $this->_statement( $_ ) unless $this->{Sth}{$_} } keys %$table;
+    map { $this->_statement( $_ ) unless $this->{sth}{$_} } keys %$table;
     return $this;
 }
 
@@ -198,6 +198,26 @@ sub table
     my @table = keys %{ $this->{sth} };
 
     return wantarray ? @table : \@table;
+}
+
+=head2 reload()
+
+reload table names form DB files.
+
+=cut
+sub reload
+{
+    my $this = shift @_;
+    my $table = $this->{dbh}->table_info( undef, undef, undef, 'TABLE' )
+        ->fetchall_hashref( 'TABLE_NAME' );
+    my $sth = $this->{sth};
+
+    my %count;
+    map { $count{$_}++ } keys %$sth, keys %$table;
+    map { delete $sth->{$_} } grep { $count{$_} == 1 } keys %$sth;
+    map { $this->_statement( $_ ) } grep { $count{$_} == 1 } keys %$table;
+
+    return $this;
 }
 
 =head2 stat()

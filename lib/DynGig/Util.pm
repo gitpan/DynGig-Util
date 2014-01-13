@@ -10,7 +10,7 @@ package DynGig::Util;
 Version 1.03
 
 =cut
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 =head1 MODULES
 
